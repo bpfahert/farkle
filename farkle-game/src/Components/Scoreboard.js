@@ -6,7 +6,7 @@ export default function Scoreboard(props) {
 
     return (
         <div className="scoreboard">
-            <h2>Score: {props.score}</h2>
+            <h1>Score: {props.score}</h1>
         </div>
     );
 }

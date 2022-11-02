@@ -6,27 +6,34 @@ import Scoreboard from './Components/Scoreboard';
 function App() {
 
   const [dice, setDice] = React.useState(rollAllDice);
+  const [score, setScore] = React.useState(500);
 
   function rollAllDice() {
     const rolledDice = [];
     for (let i = 0; i < 6; i++) {
-      rolledDice[i] = Math.ceil(Math.random() *6);
+      rolledDice[i] = {value: Math.ceil(Math.random() *6),
+        isKept : false};
     }
+    console.table(rolledDice);
     return rolledDice;
   }
 
   function handleClick() {
-    console.table(dice);
     setDice(rollAllDice());
-    console.table(dice);
   }
-
 
 
   return (
     <div className="app">
-      <Scoreboard score="0"/>
-      <Dice value={dice[2]} />
+      <Scoreboard score={score}/>
+      <div className="dicebox">
+        <Dice value={dice[0].value} />
+        <Dice value={dice[1].value} />
+        <Dice value={dice[2].value} />
+        <Dice value={dice[3].value} />
+        <Dice value={dice[4].value} />
+        <Dice value={dice[5].value} />
+      </div>
       <button type="button" onClick={handleClick}> Roll All Dice</button>
     </div>
   );

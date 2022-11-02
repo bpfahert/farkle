@@ -6,8 +6,13 @@ export default function Dice(props) {
 
 
     return (
-        <div className="dice">
-            <h3>{props.value}</h3>
+        <div>
+            <div className="dice">
+                <h2>{props.value}</h2>
+            </div>
+            <div className="dicebtn">
+                <button type="button" className="dicebtn">Keep</button>
+            </div>
         </div>
         );
 }
