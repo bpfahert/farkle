@@ -6,8 +6,8 @@ export default function Dice(props) {
 
 
     return (
-        <div>
-            <h3>5</h3>
+        <div className="dice">
+            <h3>{props.value}</h3>
         </div>
         );
 }
