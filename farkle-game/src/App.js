@@ -5,36 +5,73 @@ import Scoreboard from './Components/Scoreboard';
 
 function App() {
 
-  const [dice, setDice] = React.useState(rollAllDice);
-  const [score, setScore] = React.useState(500);
+  const [dice, setDice] = React.useState(initializeDice);
+  const [totalScore, setTotalScore] = React.useState(500);
+  const [roundScore, setRoundScore] = React.useState(0);
 
-  function rollAllDice() {
+
+  function initializeDice() {
     const rolledDice = [];
     for (let i = 0; i < 6; i++) {
-      rolledDice[i] = {value: Math.ceil(Math.random() *6),
-        isKept : false};
+        rolledDice.push({
+          value: Math.ceil(Math.random() *6),
+          isKept : false,
+          isUsable: true,
+          diceID : i
+        });
     }
-    console.table(rolledDice);
     return rolledDice;
   }
 
-  function handleClick() {
-    setDice(rollAllDice());
+  function rollAllDice() {
+    setDice(prevDice => prevDice.map(die => {
+      if (die.isKept === false) {
+        return {...die, value: Math.ceil(Math.random() * 6)};
+      }
+      else {
+        return {...die};
+      }})
+  )}
+
+  function keepDie(id) {
+    setDice(prevDice => prevDice.map(die => {
+      if (id === die.diceID) {
+        return {...die,
+        isKept: !die.isKept
+        }}
+      else {
+        return {...die};
+      }
+    }))
   }
 
+  function isFarkle() {
+    const farkleArray = 
+  }
+
+  const diceArray = dice.map(die => {
+    return (
+    <Dice value={die.value} iskept={die.isKept} diceid={die.id} key={die.id} keepdie={() => {keepDie(die.diceID)}} />
+    )}
+  )
+
+  function checkDice() {
+    console.table(dice);
+  }
+
+// const scoreElements = React.useEffect( () => {
+  
+// }, [RoundScore])
 
   return (
     <div className="app">
-      <Scoreboard score={score}/>
-      <div className="dicebox">
-        <Dice value={dice[0].value} />
-        <Dice value={dice[1].value} />
-        <Dice value={dice[2].value} />
-        <Dice value={dice[3].value} />
-        <Dice value={dice[4].value} />
-        <Dice value={dice[5].value} />
+      <Scoreboard totalscore={totalScore} roundscore={roundScore}/>
+      <div className="dicecontainer">
+        {diceArray}
       </div>
-      <button type="button" onClick={handleClick}> Roll All Dice</button>
+      <button type="button" onClick={rollAllDice}> Roll All Dice</button>
+      <button type="button"> Keep Points</button>
+      <button onClick={checkDice}>Check dice state</button>
     </div>
   );
 }

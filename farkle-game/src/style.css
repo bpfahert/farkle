@@ -7,7 +7,7 @@
     align-items: center;
 }
 
-.dicebox {
+.dicecontainer {
     display: flex;
     flex-direction: row;
     justify-content: center;
@@ -30,6 +30,7 @@
     margin: 5px;
     gap: 10px;
     text-align: center;
+    cursor: pointer;
 }
 
 .scoreboard {
@@ -49,3 +50,6 @@
     text-align: center;
 }
 
+#kept {
+    background-color: grey;
+}
