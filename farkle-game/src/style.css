@@ -16,7 +16,9 @@
     height: 100px;
 }
 
-.dice {
+.dice, 
+.dicekept,
+.diceused {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -31,6 +33,14 @@
     gap: 10px;
     text-align: center;
     cursor: pointer;
+}
+
+.dicekept {
+    background-color: grey;
+}
+
+.diceused {
+    background-color: red;
 }
 
 .scoreboard {
@@ -48,8 +58,4 @@
     margin: 5px;
     gap: 10px;
     text-align: center;
-}
-
-#kept {
-    background-color: grey;
 }

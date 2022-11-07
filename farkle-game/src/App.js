@@ -16,7 +16,7 @@ function App() {
         rolledDice.push({
           value: Math.ceil(Math.random() *6),
           isKept : false,
-          isUsable: true,
+          isUsed: false,
           diceID : i
         });
     }
@@ -29,13 +29,13 @@ function App() {
         return {...die, value: Math.ceil(Math.random() * 6)};
       }
       else {
-        return {...die};
+        return {...die, isUsed: true};
       }})
   )}
 
   function keepDie(id) {
     setDice(prevDice => prevDice.map(die => {
-      if (id === die.diceID) {
+      if (id === die.diceID && die.isUsed === false) {
         return {...die,
         isKept: !die.isKept
         }}
@@ -45,13 +45,13 @@ function App() {
     }))
   }
 
-  function isFarkle() {
-    const farkleArray = 
-  }
+  // function isFarkle() {
+  //   const farkleArray = 
+  // }
 
   const diceArray = dice.map(die => {
     return (
-    <Dice value={die.value} iskept={die.isKept} diceid={die.id} key={die.id} keepdie={() => {keepDie(die.diceID)}} />
+    <Dice value={die.value} iskept={die.isKept} isused={die.isUsed} diceid={die.id} key={die.id} keepdie={() => {keepDie(die.diceID)}} />
     )}
   )
 

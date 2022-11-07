@@ -1,9 +1,23 @@
 import React from 'react';
 
 export default function Dice(props) {
+    
+    function diceStatus() {
+        if (props.isused === true) {
+            return "diceused";
+        }
+        else if (props.iskept === true) {
+            return "dicekept";
+        }
+        else {
+            return "dice";
+        }
+    }
+
+    let diceClassName= diceStatus();
 
     return (
-        <div className="dice" id={props.iskept ? "kept" : "notkept"} onClick={props.keepdie} >
+        <div className={diceStatus()} onClick={props.keepdie} >
             <h2>{props.value}</h2>
         </div>
         );
