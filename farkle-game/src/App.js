@@ -59,6 +59,7 @@ function App() {
     const farkleArray = getUnusedDiceValues();
     if (farkleArray.includes(1) === false && farkleArray.includes(5) === false) {
       alert("Farkle!");
+      setRoundScore(0);
     }
   }
 
@@ -78,22 +79,37 @@ function App() {
       if (!round[value]) {
         round[value] = 0;
       }
-      round[value] += 1;
+      round[value] += 1;;
       return round;
     },{})
     console.log(score);
-    //newScore will only add 100 or 50 - not both combined 
-    let newScore = (score[1] && (score[1] * 100)) + (score[5] && (score[5] * 50));
+    let newScore = 0;
+    if (score[1] && score[5]) {
+      newScore = (score[1] * 100) + (score[5] * 50);
+    }
+    else if (score[5]) {
+      newScore = score[5] * 50;
+    }
+    else if (score[1]) {
+      newScore = score[1] * 100;
+    }
     console.log(newScore);
     setRoundScore(prevScore => {
       return prevScore += newScore;
     } )
-    console.log(roundScore);
   }
 
+  //FUNCTION TO KEEP POINTS AND ADD TO TOTAL
+  function keepPoints() {
+    setTotalScore(prevScore => {
+      return prevScore += roundScore;
+    })
+    setRoundScore(0);
 
+  }
 
-
+  //FUNCTION TO CHECK IF ALL DICE ARE USED
+  // function checkDice() {}
 
   const diceArray = dice.map(die => {
     return (
@@ -112,7 +128,7 @@ function App() {
         {diceArray}
       </div>
       <button type="button" onClick={rollAllDice}> Roll All Dice</button>
-      <button type="button"> Keep Points</button>
+      <button type="button" onClick={keepPoints}> Keep Points</button>
       <button onClick={checkDice}>Check dice state</button>
       <button onClick={calculateRoundScore}>Check farkle</button>
     </div>
