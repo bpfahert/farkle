@@ -14,7 +14,7 @@ function App() {
     const rolledDice = [];
     for (let i = 0; i < 6; i++) {
         rolledDice.push({
-          value: Math.ceil(Math.random() *6),
+          value: Math.ceil(Math.random() * 6),
           isKept : false,
           isUsed: false,
           diceID : i
@@ -22,6 +22,12 @@ function App() {
     }
     return rolledDice;
   }
+
+  // TODO: WRITE FUNCTION TO RESET DICE AFTER A FARKLE OR AFTER POINTS ARE KEPT
+  // function resetDice() {
+  //   setDice()
+  // }
+
 
   function rollAllDice() {
     setDice(prevDice => prevDice.map(die => {
@@ -31,7 +37,12 @@ function App() {
       else {
         return {...die, isUsed: true};
       }})
-  )}
+    )
+    //NEEDS TO BE ASYNC?
+    // if(isFarkle()) {
+    //   handleFarkle();
+    // }
+}
 
   function keepDie(id) {
     setDice(prevDice => prevDice.map(die => {
@@ -57,11 +68,20 @@ function App() {
 
   function isFarkle() {
     const farkleArray = getUnusedDiceValues();
+    console.log(farkleArray);
     if (farkleArray.includes(1) === false && farkleArray.includes(5) === false) {
-      alert("Farkle!");
-      setRoundScore(0);
+      return true;
+    }
+    else {
+      return false;
     }
   }
+
+  function handleFarkle() {
+      setRoundScore(0);
+      setDice(initializeDice);
+      alert("Farkle!");
+    }
 
   //FINISH
   function calculateRoundScore() {
@@ -105,11 +125,20 @@ function App() {
       return prevScore += roundScore;
     })
     setRoundScore(0);
-
   }
 
-  //FUNCTION TO CHECK IF ALL DICE ARE USED
-  // function checkDice() {}
+  //FUNCTION TO CHECK IF ALL DICE ARE USED(NOT IMPLEMENTED IN ANYTHING YET)
+  function isEndOfRound() {
+    const roundStatusArray = dice.map(die => {
+      return die.isUsed;
+    });
+    if (roundStatusArray.includes(false)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
 
   const diceArray = dice.map(die => {
     return (
@@ -131,6 +160,7 @@ function App() {
       <button type="button" onClick={keepPoints}> Keep Points</button>
       <button onClick={checkDice}>Check dice state</button>
       <button onClick={calculateRoundScore}>Check farkle</button>
+      <button onClick={isEndOfRound}>Check round</button>
     </div>
   );
 }
