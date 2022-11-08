@@ -37,14 +37,9 @@ function App() {
       else {
         return {...die, isUsed: true};
       }})
-    )
-    //NEEDS TO BE ASYNC?
-    // if(isFarkle()) {
-    //   handleFarkle();
-    // }
-}
+    )}
 
-  function keepDie(id) {
+    function keepDie(id) {
     setDice(prevDice => prevDice.map(die => {
       if (id === die.diceID && die.isUsed === false) {
         return {...die,
@@ -56,6 +51,11 @@ function App() {
     }))
   }
 
+  //Check for farkle every time dice are rolled
+  React.useEffect(() => {
+    isFarkle();
+  }, [dice])
+
   //function for getting only the values of the unused dice
   function getUnusedDiceValues() {
     const unusedDiceArray = dice.filter(die => die.isUsed === false);
@@ -66,14 +66,12 @@ function App() {
     return farkleArray;
   }
 
+  //Function to check for a farkle and to handle it if true
   function isFarkle() {
     const farkleArray = getUnusedDiceValues();
     console.log(farkleArray);
-    if (farkleArray.includes(1) === false && farkleArray.includes(5) === false) {
-      return true;
-    }
-    else {
-      return false;
+    if (farkleArray.includes(1) === false && farkleArray.includes(5) === false && farkleArray.length > 0) {
+      handleFarkle();
     }
   }
 
@@ -82,6 +80,7 @@ function App() {
       setDice(initializeDice);
       alert("Farkle!");
     }
+
 
   //FINISH
   function calculateRoundScore() {
@@ -125,10 +124,11 @@ function App() {
       return prevScore += roundScore;
     })
     setRoundScore(0);
+    setDice(initializeDice());
   }
 
-  //FUNCTION TO CHECK IF ALL DICE ARE USED(NOT IMPLEMENTED IN ANYTHING YET)
-  function isEndOfRound() {
+  //FUNCTION TO CHECK IF ALL DICE ARE USED AND THE PLAYER CAN CHOOSE TO ROLL AGAIN(NOT IMPLEMENTED IN ANYTHING YET)
+  function canRollAgain() {
     const roundStatusArray = dice.map(die => {
       return die.isUsed;
     });
@@ -160,7 +160,8 @@ function App() {
       <button type="button" onClick={keepPoints}> Keep Points</button>
       <button onClick={checkDice}>Check dice state</button>
       <button onClick={calculateRoundScore}>Check farkle</button>
-      <button onClick={isEndOfRound}>Check round</button>
+      {/* <button onClick={isEndOfRound}>Check round</button> */}
+      <h3>Click to keep a dice that's eligible for points! Grey die means die is kept, red die means die is already used for this round.</h3>
     </div>
   );
 }
