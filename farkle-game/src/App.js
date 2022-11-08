@@ -64,7 +64,7 @@ function App() {
         console.log(farkleArray);
         setRoundScore(0);
         setDice(initializeDice);
-        alert("Farkle!");
+        console.log("Farkle!");
       }
     }, [dice])
 
@@ -88,26 +88,43 @@ function App() {
       return round;
     },{})
     let newScore = 0;
-    if (score[1] && score[5]) {
-      newScore = (score[1] * 100) + (score[5] * 50);
+    for (let i = 2; i < 7; i++) {
+      if (score[i]) {
+        if (score[i] === 3) {
+          newScore += (100 * i);
+        }
+      }
     }
-    else if (score[5]) {
-      newScore = score[5] * 50;
+    if (score[5] && score[5] < 3) {
+      newScore += score[5] * 50;
     }
-    else if (score[1]) {
-      newScore = score[1] * 100;
+    if (score[1] && score[1] < 4) {
+      newScore += score[1] * 100;
     }
+    if (score[1] && score[2] && score[3] && score[4] && score[5] && score[6]) {
+      newScore += 1500;
+    }
+    for (let i = 1; i < 7; i++) {
+      if (score[i]) { 
+        if (score[i] === 4) {
+        newScore += 1000;
+        }
+        if (score[i] === 5) {
+          newScore += 2000;
+        }
+        if (score[i] === 6) {
+          newScore += 3000;
+        }
+      }
+    }
+    //USE SWITCH CASE INSTEAD OF IF?
+    // switch (score) { 
+    // default: console.log(score);
+    // }
     setRoundScore(prevScore => {
       return prevScore + newScore;
     } )
   }
-
-    // //function to change round score DONT NEED?
-    // function changeRoundScore(score) {
-    //   setRoundScore(prevScore => {
-    //     return prevScore + score;
-    //   })
-    // }
 
   //FUNCTION TO KEEP POINTS AND ADD TO TOTAL
   function keepPoints() {
@@ -136,27 +153,23 @@ function App() {
   }
   
   //FUNCTION TO CHECK IF ALL DICE ARE USED AND THE PLAYER CAN CHOOSE TO ROLL AGAIN(NOT IMPLEMENTED IN ANYTHING YET)
-  function canRollAgain() {
-    const roundStatusArray = dice.map(die => {
-      return die.isUsed;
-    });
-    if (roundStatusArray.includes(false)) {
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
+  // function canRollAgain() {
+  //   const roundStatusArray = dice.map(die => {
+  //     return die.isUsed;
+  //   });
+  //   if (roundStatusArray.includes(false)) {
+  //     return false;
+  //   }
+  //   else {
+  //     return true;
+  //   }
+  // }
 
   const diceArray = dice.map(die => {
     return (
     <Dice value={die.value} iskept={die.isKept} isused={die.isUsed} diceid={die.id} key={die.id} pointsgiven={die.pointsGiven} keepdie={() => {keepDie(die.diceID)}} />
     )}
   )
-
-  function checkDice() {
-    console.table(dice);
-  }
 
   return (
     <div className="app">
