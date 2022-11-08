@@ -3,7 +3,7 @@ import React from 'react';
 export default function Dice(props) {
     
     function diceStatus() {
-        if (props.isused === true) {
+        if (props.pointsgiven === true || props.isused === true) {
             return "diceused";
         }
         else if (props.iskept === true) {

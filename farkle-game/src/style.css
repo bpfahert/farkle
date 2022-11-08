@@ -1,4 +1,9 @@
-
+button {
+    margin-top: 20px;
+    height: 50px;
+    font-size: 1.6rem;
+    border-radius: 10px;
+}
 
 .app {
     display: flex;
