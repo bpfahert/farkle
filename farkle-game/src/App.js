@@ -6,11 +6,26 @@ import Scoreboard from './Components/Scoreboard';
 function App() {
 
   const [dice, setDice] = React.useState(initializeDice);
-  const [totalScoreP1, setTotalScoreP1] = React.useState(0);
+  const [totalScoreP1, setTotalScoreP1] = React.useState(9900);
   const [roundScoreP1, setRoundScoreP1] = React.useState(0);
   const [totalScoreP2, setTotalScoreP2] = React.useState(0);
   const [roundScoreP2, setRoundScoreP2] = React.useState(0);
   const [player1Turn, setPlayer1Turn] = React.useState(true);
+  const [gameOver, setGameOver] = React.useState(false);
+
+  let player1Name = "Bryan";
+  let player2Name = "Cyndi";
+
+  //TODO: Code function to check if a player has 10,000 points. If so, give other player one more turn (INCOMPLETE)
+  React.useEffect(() => {
+    if (totalScoreP1 >= 10000) {
+      console.log("p1 wins");
+      alert(`${player1Name} has at least 10,000 points! ${player2Name} has one more turn to try to beat their score!`);
+    }
+    else if (totalScoreP2 >= 10000) {
+      alert(`${player2Name} has at least 10,000 points! ${player1Name} has one more turn to try to beat their score!`);
+    }
+  },[totalScoreP1, totalScoreP2]);
 
 //Completely resets dice with a random value between 1 and 6
   function initializeDice() {
@@ -73,7 +88,6 @@ function App() {
       }
     }, [dice])
 
-  //FINISH
   function calculateRoundScore() {
     const keptDiceArray = dice.filter(die => die.isKept === true && die.isUsed === false);
     const roundScoreArray = [];
@@ -220,10 +234,10 @@ function App() {
 
   return (
     <div className="app">
-      <h2>Player {player1Turn ? "1" : "2"} turn</h2>
+      <h2>Turn: {player1Turn ? `${player1Name}` : `${player2Name}`}</h2>
       <div className="scorebox">
-      <Scoreboard totalscore={totalScoreP1} roundscore={roundScoreP1} playerid={1}/>
-      <Scoreboard totalscore={totalScoreP2} roundscore={roundScoreP2} playerid={2}/>
+      <Scoreboard totalscore={totalScoreP1} roundscore={roundScoreP1} playerid={player1Name}/>
+      <Scoreboard totalscore={totalScoreP2} roundscore={roundScoreP2} playerid={player2Name}/>
       </div>
       <div className="dicecontainer">
         {diceArray}
