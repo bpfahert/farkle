@@ -9,7 +9,7 @@ function App() {
   const [totalScore, setTotalScore] = React.useState(0);
   const [roundScore, setRoundScore] = React.useState(0);
 
-
+//Completely resets dice with a random value between 1 and 6
   function initializeDice() {
     const rolledDice = [];
     for (let i = 0; i < 6; i++) {
@@ -24,23 +24,23 @@ function App() {
     return rolledDice;
   }
 
-  // TODO: WRITE FUNCTION TO RESET DICE AFTER A FARKLE OR AFTER POINTS ARE KEPT
-  // function resetDice() {
-  //   setDice()
-  // }
-
-
+  //Rolls all dice that aren't marked as kept or used
   function rollAllDice() {
-    // calculateRoundScore(); TAKE OUT?
-    setDice(prevDice => prevDice.map(die => {
-      if (die.isKept === false) {
-        return {...die, value: Math.ceil(Math.random() * 6)};
+    if (canRollAgain() === true) {
+      setDice(initializeDice)
+    }
+    else {
+      setDice(prevDice => prevDice.map(die => {
+        if (die.isKept === false) {
+          return {...die, value: Math.ceil(Math.random() * 6)};
+        }
+        else {
+          return {...die, isUsed: true};
+        }}))
       }
-      else {
-        return {...die, isUsed: true};
-      }})
-    )}
+  }
 
+  //Allows clicking on a dice to mark it as kept
     function keepDie(id) {
     setDice(prevDice => prevDice.map(die => {
       if (id === die.diceID && die.isUsed === false) {
@@ -78,7 +78,7 @@ function App() {
     scoreCalculator(roundScoreArray);
   }
 
-  //TODO: Write a function that calculates score each time you roll
+  //FUNCTION THAT CALCULATES SCORE FROM KEPT DICE WHEN KEEP DIE BUTTON IS CLICKED
   function scoreCalculator(array) {
     const score = array.reduce( (round, value) => {
       if (!round[value]) {
@@ -117,24 +117,20 @@ function App() {
         }
       }
     }
-    //USE SWITCH CASE INSTEAD OF IF?
-    // switch (score) { 
-    // default: console.log(score);
-    // }
     setRoundScore(prevScore => {
       return prevScore + newScore;
     } )
   }
 
-  //FUNCTION TO KEEP POINTS AND ADD TO TOTAL
+  //Function for player to keep points and end their turn
   function keepPoints() {
-    //Set timeout or await?? Round score isn't adding in this case
     setTotalScore(prevScore => {
       return prevScore + roundScore;
     });
     resetRound();
   }  
 
+  //Adds kept dice points to round total and marks each kept die as pointsGiven
   function keepSelectedDice() {
     calculateRoundScore();
     setDice(prevDice => prevDice.map(die => {
@@ -146,24 +142,24 @@ function App() {
       }
 }))};
 
-
+  //Resets the dice and sets the score to 0, used after a farkle or player change
   function resetRound() {
     setDice(initializeDice);
     setRoundScore(0);
   }
   
-  //FUNCTION TO CHECK IF ALL DICE ARE USED AND THE PLAYER CAN CHOOSE TO ROLL AGAIN(NOT IMPLEMENTED IN ANYTHING YET)
-  // function canRollAgain() {
-  //   const roundStatusArray = dice.map(die => {
-  //     return die.isUsed;
-  //   });
-  //   if (roundStatusArray.includes(false)) {
-  //     return false;
-  //   }
-  //   else {
-  //     return true;
-  //   }
-  // }
+  //Funciton to check if all dice are used and the player can choose to roll again
+  function canRollAgain() {
+    const roundStatusArray = dice.map(die => {
+      return die.pointsGiven;
+    });
+    if (roundStatusArray.includes(false)) {
+      return false;
+    }
+    else {
+      return true;
+    }
+  }
 
   const diceArray = dice.map(die => {
     return (
