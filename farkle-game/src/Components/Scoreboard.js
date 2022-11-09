@@ -6,8 +6,9 @@ export default function Scoreboard(props) {
 
     return (
         <div className="scoreboard">
-            <h1>Total Score: {props.totalscore}</h1>
-            <h2>Round Score: {props.roundscore}</h2>
+            <h1>Player {props.playerid}</h1>
+            <h2>Total Score: {props.totalscore}</h2>
+            <h3>Round Score: {props.roundscore}</h3>
         </div>
     );
 }

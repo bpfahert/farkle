@@ -50,6 +50,7 @@ button {
 
 .scoreboard {
     font-size: 1.9rem;
+
 }
 
 .dicebtn {
@@ -63,4 +64,11 @@ button {
     margin: 5px;
     gap: 10px;
     text-align: center;
+}
+
+.scorebox {
+    display: flex;
+    gap: 150px;
+    border: solid 2px black;
+    padding: 50px;
 }

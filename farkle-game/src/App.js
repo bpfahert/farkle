@@ -6,8 +6,11 @@ import Scoreboard from './Components/Scoreboard';
 function App() {
 
   const [dice, setDice] = React.useState(initializeDice);
-  const [totalScore, setTotalScore] = React.useState(0);
-  const [roundScore, setRoundScore] = React.useState(0);
+  const [totalScoreP1, setTotalScoreP1] = React.useState(0);
+  const [roundScoreP1, setRoundScoreP1] = React.useState(0);
+  const [totalScoreP2, setTotalScoreP2] = React.useState(0);
+  const [roundScoreP2, setRoundScoreP2] = React.useState(0);
+  const [player1Turn, setPlayer1Turn] = React.useState(true);
 
 //Completely resets dice with a random value between 1 and 6
   function initializeDice() {
@@ -61,10 +64,12 @@ function App() {
         farkleArray[i] = unusedDiceArray[i].value;
       }
       if (farkleArray.includes(1) === false && farkleArray.includes(5) === false && farkleArray.length > 0) {
-        console.log(farkleArray);
-        setRoundScore(0);
+        //Change to farkle alert
+        alert("Farkle! Next player clicks to roll dice!");
+        setRoundScoreP1(0);
+        setRoundScoreP2(0);
+        setPlayer1Turn(player => !player);
         setDice(initializeDice);
-        console.log("Farkle!");
       }
     }, [dice])
 
@@ -88,12 +93,20 @@ function App() {
       return round;
     },{})
     let newScore = 0;
+    let tripletCount = 0;
+    let pairCount = 0;
+    let fourSame = false;
+    let pair = false;
     for (let i = 2; i < 7; i++) {
       if (score[i]) {
         if (score[i] === 3) {
           newScore += (100 * i);
+          tripletCount += 1;
         }
       }
+    }
+    if (score[1] && score[1] === 3) {
+      tripletCount += 1;
     }
     if (score[5] && score[5] < 3) {
       newScore += score[5] * 50;
@@ -108,6 +121,7 @@ function App() {
       if (score[i]) { 
         if (score[i] === 4) {
         newScore += 1000;
+        fourSame = true;
         }
         if (score[i] === 5) {
           newScore += 2000;
@@ -115,22 +129,58 @@ function App() {
         if (score[i] === 6) {
           newScore += 3000;
         }
+        if (score[i] === 2) {
+          pair = true;
+          pairCount += 1;
+        }
       }
     }
-    setRoundScore(prevScore => {
-      return prevScore + newScore;
-    } )
+    if (tripletCount === 2) {
+      newScore = 2500;
+      console.log("triplet!");
+    }
+    if (pairCount === 3) {
+      newScore = 1500;
+      console.log("Three pairs!");
+    }
+    if (fourSame === true && pair === true) {
+      newScore = 1500;
+      console.log("four with a pair!");
+    }
+    // if (newScore === 0 || ) {
+    //   alert("Illegal move! You must select a valid points combination to roll again!");
+    //   return false;
+    // }
+    if (player1Turn === true) {
+      setRoundScoreP1(prevScore => {
+        return prevScore + newScore;
+      })
+    }
+    else {
+      setRoundScoreP2(prevScore => {
+        return prevScore + newScore;
+      })
+    }
   }
 
   //Function for player to keep points and end their turn
   function keepPoints() {
-    setTotalScore(prevScore => {
-      return prevScore + roundScore;
+    if (player1Turn === true) {
+      setTotalScoreP1(prevScore => {
+        return prevScore + roundScoreP1;
     });
+    }
+    else if (player1Turn === false) {
+      setTotalScoreP2(prevScore => {
+        return prevScore + roundScoreP2;
+      });
+    }
     resetRound();
+    setPlayer1Turn(player => !player);
   }  
 
   //Adds kept dice points to round total and marks each kept die as pointsGiven
+    //TODO: Code so each dice kept must be involved in scoring to keep and player must keep at least 1 die to roll again
   function keepSelectedDice() {
     calculateRoundScore();
     setDice(prevDice => prevDice.map(die => {
@@ -140,12 +190,13 @@ function App() {
       else {
         return {...die};
       }
-}))};
+  }))};
 
   //Resets the dice and sets the score to 0, used after a farkle or player change
   function resetRound() {
     setDice(initializeDice);
-    setRoundScore(0);
+    setRoundScoreP1(0);
+    setRoundScoreP2(0);
   }
   
   //Funciton to check if all dice are used and the player can choose to roll again
@@ -169,7 +220,11 @@ function App() {
 
   return (
     <div className="app">
-      <Scoreboard totalscore={totalScore} roundscore={roundScore}/>
+      <h2>Player {player1Turn ? "1" : "2"} turn</h2>
+      <div className="scorebox">
+      <Scoreboard totalscore={totalScoreP1} roundscore={roundScoreP1} playerid={1}/>
+      <Scoreboard totalscore={totalScoreP2} roundscore={roundScoreP2} playerid={2}/>
+      </div>
       <div className="dicecontainer">
         {diceArray}
       </div>
