@@ -73,14 +73,14 @@ function App() {
   }
 
   //Check for farkle every time dice are rolled
-  //TODO: FIX SO FARKLE ONLY HAPPENS WHEN NO POINTS ARE SCORED, NOT JUST WHEN 1 AND 5 AREN'T ROLLED
   React.useEffect(() => {
       const unusedDiceArray = dice.filter(die => die.isUsed === false);
       const farkleArray = [];
       for (let i = 0; i < unusedDiceArray.length; i++) {
         farkleArray[i] = unusedDiceArray[i].value;
       }
-      if (farkleArray.includes(1) === false && farkleArray.includes(5) === false && farkleArray.length > 0) {
+      console.log(farkleArray);
+      if (scoreCalculator(farkleArray) === 0 && farkleArray.length > 0) {
         if (gameOver === true) {
           alert(totalScoreP1 > totalScoreP2 ? `${player1Name} wins!` : `${player2Name} wins!`)
         }
@@ -100,7 +100,7 @@ function App() {
     for (let i = 0; i < keptDiceArray.length; i ++) {
       roundScoreArray[i] = keptDiceArray[i].value;
     }
-    scoreCalculator(roundScoreArray);
+    changeScore(scoreCalculator(roundScoreArray));
   }
 
   //FUNCTION THAT CALCULATES SCORE FROM KEPT DICE WHEN KEEP DIE BUTTON IS CLICKED
@@ -167,18 +167,32 @@ function App() {
       newScore = 1500;
       console.log("four with a pair!");
     }
+    return newScore;
     // if (newScore === 0 || ) {
     //   alert("Illegal move! You must select a valid points combination to roll again!");
     //   return false;
     // }
+    // if (player1Turn === true) {
+    //   setRoundScoreP1(prevScore => {
+    //     return prevScore + newScore;
+    //   })
+    // }
+    // else {
+    //   setRoundScoreP2(prevScore => {
+    //     return prevScore + newScore;
+    //   })
+    // }
+  }
+
+  function changeScore(score) {
     if (player1Turn === true) {
       setRoundScoreP1(prevScore => {
-        return prevScore + newScore;
+        return prevScore + score;
       })
     }
     else {
       setRoundScoreP2(prevScore => {
-        return prevScore + newScore;
+        return prevScore + score;
       })
     }
   }
@@ -202,6 +216,7 @@ function App() {
         console.log("Game is over!");
       }
     }
+    alert("Points kept! Next player click okay to roll dice!");
     resetRound();
     setPlayer1Turn(player => !player);
   }  
