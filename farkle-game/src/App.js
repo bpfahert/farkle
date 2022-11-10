@@ -12,6 +12,7 @@ function App() {
   const [roundScoreP2, setRoundScoreP2] = React.useState(0);
   const [player1Turn, setPlayer1Turn] = React.useState(true);
   const [gameOver, setGameOver] = React.useState(false);
+  const [isClickable, setIsClickable] = React.useState(true);
 
   let player1Name = "Bryan";
   let player2Name = "Cyndi";
@@ -57,6 +58,7 @@ function App() {
           return {...die, isUsed: true};
         }}))
       }
+    setIsClickable(true);
   }
 
   //Allows clicking on a dice to mark it as kept
@@ -94,13 +96,14 @@ function App() {
       }
     }, [dice])
 
-  function calculateRoundScore() {
+  function getRoundScoreArray() {
     const keptDiceArray = dice.filter(die => die.isKept === true && die.isUsed === false);
     const roundScoreArray = [];
     for (let i = 0; i < keptDiceArray.length; i ++) {
       roundScoreArray[i] = keptDiceArray[i].value;
     }
-    changeScore(scoreCalculator(roundScoreArray));
+    return roundScoreArray;
+    // changeScore(scoreCalculator(roundScoreArray)); Dont need in this function?
   }
 
   //FUNCTION THAT CALCULATES SCORE FROM KEPT DICE WHEN KEEP DIE BUTTON IS CLICKED
@@ -217,6 +220,7 @@ function App() {
       }
     }
     alert("Points kept! Next player click okay to roll dice!");
+    setIsClickable(true);
     resetRound();
     setPlayer1Turn(player => !player);
   }  
@@ -224,15 +228,31 @@ function App() {
   //Adds kept dice points to round total and marks each kept die as pointsGiven
     //TODO: Code so each dice kept must be involved in scoring to keep and player must keep at least 1 die to roll again
   function keepSelectedDice() {
-    calculateRoundScore();
-    setDice(prevDice => prevDice.map(die => {
-      if (die.isKept === true) {
-        return {...die, pointsGiven: true};
+    console.log(isClickable);
+    if (isClickable === true) {
+      let roundScoreArray = getRoundScoreArray();
+      let newScore = scoreCalculator(roundScoreArray);
+      if (newScore === 0) {
+        alert("Illegal move! You must select a valid points combination to roll again!");
       }
       else {
-        return {...die};
+        setIsClickable(false);
+        console.log(isClickable);
+        changeScore(newScore);
+        setDice(prevDice => prevDice.map(die => {
+          if (die.isKept === true) {
+            return {...die, pointsGiven: true};
+          }
+          else {
+            return {...die};
+          }
+        }))
       }
-  }))};
+    }
+    else {
+      alert("You already kept these dice! Please click Roll All Dice to roll any remaining dice or Keep Points to end your turn and keep all of your points.")
+    }
+  }
 
   //Resets the dice and sets the score to 0, used after a farkle or player change
   function resetRound() {
