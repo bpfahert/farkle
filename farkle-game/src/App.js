@@ -13,6 +13,7 @@ function App() {
   const [player1Turn, setPlayer1Turn] = React.useState(true);
   const [gameOver, setGameOver] = React.useState(false);
   const [isClickable, setIsClickable] = React.useState(true);
+  const [checkFarkle, setCheckFarkle] = React.useState(false);
 
   let player1Name = "Bryan";
   let player2Name = "Cyndi";
@@ -29,6 +30,10 @@ function App() {
     }
   },[totalScoreP1, totalScoreP2]);
 
+  React.useEffect(() => {
+    setCheckFarkle(true);
+  }, [])
+
 //Completely resets dice with a random value between 1 and 6
   function initializeDice() {
     const rolledDice = [];
@@ -44,19 +49,38 @@ function App() {
     return rolledDice;
   }
 
+
+  function diceCheck() {
+    let diceScoreArray = getRoundScoreArray();
+    let diceScore = scoreCalculator(diceScoreArray);
+    if (diceScore === 0 || diceScore === undefined) {
+      return 0;  
+    }
+  }
+
+
   //Rolls all dice that aren't marked as kept or used
   function rollAllDice() {
     if (canRollAgain() === true) {
-      setDice(initializeDice)
+      setDice(initializeDice);
+      setCheckFarkle(prevState => !prevState);
     }
-    else {
+    else if (keptDiceCount() === 0) {
+      alert("You must keep at least one point-scoring dice to roll again!");
+    }
+    else if (diceCheck() === 0) {
+      alert("You can only roll dice that score points!");
+    }
+    else if (keptDiceCount() > 0) {
       setDice(prevDice => prevDice.map(die => {
-        if (die.isKept === false) {
+        if (die.pointsGiven === false) {
           return {...die, value: Math.ceil(Math.random() * 6)};
         }
         else {
           return {...die, isUsed: true};
-        }}))
+        }
+        }))
+        setCheckFarkle(prevState => !prevState);
       }
     setIsClickable(true);
   }
@@ -73,6 +97,16 @@ function App() {
       }
     }))
   }
+
+    function keptDiceCount() {
+      let keptDiceCount = 0;
+      const diceCountArray = dice.map(die => {
+        if (die.isKept === true && die.isUsed === false) {
+         keptDiceCount += 1; 
+        }
+      })
+      return keptDiceCount;
+    }
 
   //Check for farkle every time dice are rolled
   React.useEffect(() => {
@@ -94,7 +128,7 @@ function App() {
           setDice(initializeDice);
         }
       }
-    }, [dice])
+    }, [checkFarkle])
 
   function getRoundScoreArray() {
     const keptDiceArray = dice.filter(die => die.isKept === true && die.isUsed === false);
@@ -108,6 +142,7 @@ function App() {
 
   //FUNCTION THAT CALCULATES SCORE FROM KEPT DICE WHEN KEEP DIE BUTTON IS CLICKED
   function scoreCalculator(array) {
+    let countArray = array;
     const score = array.reduce( (round, value) => {
       if (!round[value]) {
         round[value] = 0;
@@ -120,37 +155,46 @@ function App() {
     let pairCount = 0;
     let fourSame = false;
     let pair = false;
+    let usedDiceCount = 0;
     for (let i = 2; i < 7; i++) {
       if (score[i]) {
         if (score[i] === 3) {
           newScore += (100 * i);
           tripletCount += 1;
+          usedDiceCount += 3;
         }
       }
     }
     if (score[1] && score[1] === 3) {
       tripletCount += 1;
+      usedDiceCount += 3;
     }
     if (score[5] && score[5] < 3) {
       newScore += score[5] * 50;
+      usedDiceCount += score[5];
     }
     if (score[1] && score[1] < 4) {
       newScore += score[1] * 100;
+      usedDiceCount += score[1];
     }
     if (score[1] && score[2] && score[3] && score[4] && score[5] && score[6]) {
       newScore += 1500;
+      usedDiceCount = 6;
     }
     for (let i = 1; i < 7; i++) {
       if (score[i]) { 
         if (score[i] === 4) {
         newScore += 1000;
         fourSame = true;
+        usedDiceCount += 4;
         }
         if (score[i] === 5) {
           newScore += 2000;
+          usedDiceCount += 5;
         }
         if (score[i] === 6) {
           newScore += 3000;
+          usedDiceCount = 6;
         }
         if (score[i] === 2) {
           pair = true;
@@ -160,32 +204,31 @@ function App() {
     }
     if (tripletCount === 2) {
       newScore = 2500;
+      usedDiceCount = 6;
       console.log("triplet!");
     }
     if (pairCount === 3) {
       newScore = 1500;
+      usedDiceCount = 6;
       console.log("Three pairs!");
     }
     if (fourSame === true && pair === true) {
       newScore = 1500;
+      usedDiceCount = 6;
       console.log("four with a pair!");
     }
-    return newScore;
-    // if (newScore === 0 || ) {
-    //   alert("Illegal move! You must select a valid points combination to roll again!");
-    //   return false;
-    // }
-    // if (player1Turn === true) {
-    //   setRoundScoreP1(prevScore => {
-    //     return prevScore + newScore;
-    //   })
-    // }
-    // else {
-    //   setRoundScoreP2(prevScore => {
-    //     return prevScore + newScore;
-    //   })
-    // }
+    if (usedDiceCount === countArray.length) {
+      return newScore;
+    }
+    else if (getRoundScoreArray(array).length === 0 || getRoundScoreArray(array).length === undefined) {
+      return newScore;
+    }
+    else if (usedDiceCount < countArray.length && countArray.length > 1) {
+      alert("Please select a valid points combination.");
+    }
   }
+
+//RUNNING REPEATEDLY FROM START, FIX BY ADDING CONDITION THAT AT LEAST ONE DICE MUST BE KEPT^^^^
 
   function changeScore(score) {
     if (player1Turn === true) {
@@ -226,18 +269,17 @@ function App() {
   }  
 
   //Adds kept dice points to round total and marks each kept die as pointsGiven
-    //TODO: Code so each dice kept must be involved in scoring to keep and player must keep at least 1 die to roll again
+    //TODO: Code so each dice kept must be involved in scoring to keep
+    //Can do this by giving an isValid property to each dice and matching up the points array with the dice array? might not work properly
   function keepSelectedDice() {
-    console.log(isClickable);
     if (isClickable === true) {
       let roundScoreArray = getRoundScoreArray();
       let newScore = scoreCalculator(roundScoreArray);
-      if (newScore === 0) {
+      if (newScore === 0 || newScore === undefined) {
         alert("Illegal move! You must select a valid points combination to roll again!");
       }
       else {
         setIsClickable(false);
-        console.log(isClickable);
         changeScore(newScore);
         setDice(prevDice => prevDice.map(die => {
           if (die.isKept === true) {
@@ -274,6 +316,16 @@ function App() {
     }
   }
 
+//make an object instead of an array and give each value(key) an isScoring property w/ true and false?
+  // function isValid() {
+  //   let checkedDiceArray = getRoundScoreArray();
+    
+  // }
+  
+
+// dice.push trues or values into array, should match number of kept dice, dice.length should match initial count of array length (store in variable?) DICE USED COUNT IN SCORING
+
+
   const diceArray = dice.map(die => {
     return (
     <Dice value={die.value} iskept={die.isKept} isused={die.isUsed} diceid={die.id} key={die.id} pointsgiven={die.pointsGiven} keepdie={() => {keepDie(die.diceID)}} />
@@ -293,6 +345,7 @@ function App() {
       <button type="button" onClick={rollAllDice}> Roll All Dice</button>
       <button onClick={keepSelectedDice}>Keep selected dice</button>
       <button type="button" onClick={keepPoints}> Keep Points</button>
+      {/* <button onClick={isValid}>isValid</button> */}
       <h3>Click to keep a dice that's eligible for points! Grey die means die is kept, red die means die is already used for this round.</h3>
     </div>
   );
