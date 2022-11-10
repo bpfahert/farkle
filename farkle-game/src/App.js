@@ -60,6 +60,7 @@ function App() {
 
 
   //Rolls all dice that aren't marked as kept or used
+  //TODO: ADD CHECK FOR DICE BEING SCORED FIRST
   function rollAllDice() {
     if (canRollAgain() === true) {
       setDice(initializeDice);
@@ -71,7 +72,7 @@ function App() {
     else if (diceCheck() === 0) {
       alert("You can only roll dice that score points!");
     }
-    else if (keptDiceCount() > 0) {
+    else if (keptDiceCount() > 0  && (roundScoreP1 > 0 || roundScoreP2 > 0)) {
       setDice(prevDice => prevDice.map(die => {
         if (die.pointsGiven === false) {
           return {...die, value: Math.ceil(Math.random() * 6)};
@@ -87,16 +88,18 @@ function App() {
 
   //Allows clicking on a dice to mark it as kept
     function keepDie(id) {
-    setDice(prevDice => prevDice.map(die => {
-      if (id === die.diceID && die.isUsed === false) {
-        return {...die,
-        isKept: !die.isKept
-        }}
-      else {
-        return {...die};
+      if (isClickable === true) {
+        setDice(prevDice => prevDice.map(die => {
+          if (id === die.diceID && die.isUsed === false) {
+            return {...die,
+            isKept: !die.isKept
+            }}
+          else {
+            return {...die};
+          }
+        }))
       }
-    }))
-  }
+    }
 
     function keptDiceCount() {
       let keptDiceCount = 0;
@@ -168,6 +171,7 @@ function App() {
     if (score[1] && score[1] === 3) {
       tripletCount += 1;
       usedDiceCount += 3;
+      newScore += 300;
     }
     if (score[5] && score[5] < 3) {
       newScore += score[5] * 50;
@@ -228,8 +232,6 @@ function App() {
     }
   }
 
-//RUNNING REPEATEDLY FROM START, FIX BY ADDING CONDITION THAT AT LEAST ONE DICE MUST BE KEPT^^^^
-
   function changeScore(score) {
     if (player1Turn === true) {
       setRoundScoreP1(prevScore => {
@@ -243,10 +245,28 @@ function App() {
     }
   }
 
+  function p1HasScored500() {
+    if (roundScoreP1 >= 500 || totalScoreP1 >= 500) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
+  function p2HasScored500() {
+    if (roundScoreP2 >= 500 || totalScoreP2 >= 500) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
+
   //Function for player to keep points and end their turn
   //TODO: ALSO NEED TO ADD GAMEOVER IF PLAYER FARKLES AND LOSES
   function keepPoints() {
-    if (player1Turn === true) {
+    if (player1Turn === true && p1HasScored500() === true) {
       setTotalScoreP1(prevScore => {
         return prevScore + roundScoreP1;
       });
@@ -254,7 +274,7 @@ function App() {
         console.log("Game is over!");
       }
     }
-    else if (player1Turn === false) {
+    else if (player1Turn === false && p2HasScored500() === true) {
       setTotalScoreP2(prevScore => {
         return prevScore + roundScoreP2;
       });
@@ -262,15 +282,18 @@ function App() {
         console.log("Game is over!");
       }
     }
-    alert("Points kept! Next player click okay to roll dice!");
-    setIsClickable(true);
-    resetRound();
-    setPlayer1Turn(player => !player);
+    if ((player1Turn === true && p1HasScored500() === true) || (player1Turn === false && p2HasScored500() === true)) {
+      alert("Points kept! Next player click okay to roll dice!");
+      setIsClickable(true);
+      resetRound();
+      setPlayer1Turn(player => !player);
+    }
+    else {
+      alert("You must score at least 500 points to keep your first points!");
+    }
   }  
 
   //Adds kept dice points to round total and marks each kept die as pointsGiven
-    //TODO: Code so each dice kept must be involved in scoring to keep
-    //Can do this by giving an isValid property to each dice and matching up the points array with the dice array? might not work properly
   function keepSelectedDice() {
     if (isClickable === true) {
       let roundScoreArray = getRoundScoreArray();
