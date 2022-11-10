@@ -6,7 +6,7 @@ import Scoreboard from './Components/Scoreboard';
 function App() {
 
   const [dice, setDice] = React.useState(initializeDice);
-  const [totalScoreP1, setTotalScoreP1] = React.useState(9900);
+  const [totalScoreP1, setTotalScoreP1] = React.useState(0);
   const [roundScoreP1, setRoundScoreP1] = React.useState(0);
   const [totalScoreP2, setTotalScoreP2] = React.useState(0);
   const [roundScoreP2, setRoundScoreP2] = React.useState(0);
@@ -16,14 +16,15 @@ function App() {
   let player1Name = "Bryan";
   let player2Name = "Cyndi";
 
-  //TODO: Code function to check if a player has 10,000 points. If so, give other player one more turn (INCOMPLETE)
+  //TODO: Code function to check if a player has 10,000 points.
   React.useEffect(() => {
-    if (totalScoreP1 >= 10000) {
-      console.log("p1 wins");
+    if (totalScoreP1 >= 10000 && gameOver === false) {
       alert(`${player1Name} has at least 10,000 points! ${player2Name} has one more turn to try to beat their score!`);
+      setGameOver(true);
     }
-    else if (totalScoreP2 >= 10000) {
+    else if (totalScoreP2 >= 10000 && gameOver === false) {
       alert(`${player2Name} has at least 10,000 points! ${player1Name} has one more turn to try to beat their score!`);
+      setGameOver(true);
     }
   },[totalScoreP1, totalScoreP2]);
 
@@ -72,6 +73,7 @@ function App() {
   }
 
   //Check for farkle every time dice are rolled
+  //TODO: FIX SO FARKLE ONLY HAPPENS WHEN NO POINTS ARE SCORED, NOT JUST WHEN 1 AND 5 AREN'T ROLLED
   React.useEffect(() => {
       const unusedDiceArray = dice.filter(die => die.isUsed === false);
       const farkleArray = [];
@@ -79,12 +81,16 @@ function App() {
         farkleArray[i] = unusedDiceArray[i].value;
       }
       if (farkleArray.includes(1) === false && farkleArray.includes(5) === false && farkleArray.length > 0) {
-        //Change to farkle alert
-        alert("Farkle! Next player clicks to roll dice!");
-        setRoundScoreP1(0);
-        setRoundScoreP2(0);
-        setPlayer1Turn(player => !player);
-        setDice(initializeDice);
+        if (gameOver === true) {
+          alert(totalScoreP1 > totalScoreP2 ? `${player1Name} wins!` : `${player2Name} wins!`)
+        }
+        else {
+          alert("Farkle! Next player clicks to roll dice!");
+          setRoundScoreP1(0);
+          setRoundScoreP2(0);
+          setPlayer1Turn(player => !player);
+          setDice(initializeDice);
+        }
       }
     }, [dice])
 
@@ -178,16 +184,23 @@ function App() {
   }
 
   //Function for player to keep points and end their turn
+  //TODO: ALSO NEED TO ADD GAMEOVER IF PLAYER FARKLES AND LOSES
   function keepPoints() {
     if (player1Turn === true) {
       setTotalScoreP1(prevScore => {
         return prevScore + roundScoreP1;
-    });
+      });
+      if (gameOver === true) {
+        console.log("Game is over!");
+      }
     }
     else if (player1Turn === false) {
       setTotalScoreP2(prevScore => {
         return prevScore + roundScoreP2;
       });
+      if (gameOver === true) {
+        console.log("Game is over!");
+      }
     }
     resetRound();
     setPlayer1Turn(player => !player);
